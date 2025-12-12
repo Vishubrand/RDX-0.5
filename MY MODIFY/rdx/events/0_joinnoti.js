@@ -15,11 +15,17 @@ module.exports.onLoad = function () {
     const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
     const { join } = global.nodemodule["path"];
 
-    const path = join(__dirname, "chache", "joinvid");
+    const path = join(__dirname, "cache", "joinvid");
     if (!existsSync(path)) mkdirSync(path, { recursive: true });        
 
-    const path2 = join(__dirname, "chache", "joinvid", "randomvid");
+    const path2 = join(__dirname, "cache", "joinvid", "randomvid");
     if (!existsSync(path2)) mkdirSync(path2, { recursive: true });
+
+    const path3 = join(__dirname, "cache", "joinGif");
+    if (!existsSync(path3)) mkdirSync(path3, { recursive: true });
+
+    const path4 = join(__dirname, "cache", "joinGif", "randomgif");
+    if (!existsSync(path4)) mkdirSync(path4, { recursive: true });
 
     return;
 }
@@ -66,7 +72,7 @@ AGR AP KO APNE GROUP MA ADMIN KA NAME KA BOT CHAHIE TO WHATSAPP PA CONTACT KR SA
 ⟦🕊️⟦──🎀🧸💖🧸🎀──❀💞⟧  
 🍒🌟✧𝓢𝒶𝓇𝒹𝒶𝓇✧  
 ⟧🕊️⟧──🎀🧸💖🧸🎀──❀💞⟧
-`, attachment: fs.createReadStream(__dirname + "/chache/joinvid/botjoin.mp4")} ,threadID));
+`, attachment: fs.createReadStream(__dirname + "/cache/joinvid/botjoin.mp4")} ,threadID));
     }
     else {
         try {
@@ -74,7 +80,7 @@ AGR AP KO APNE GROUP MA ADMIN KA NAME KA BOT CHAHIE TO WHATSAPP PA CONTACT KR SA
             let { threadName, participantIDs } = await api.getThreadInfo(threadID);
 
             const threadData = global.data.threadData.get(parseInt(threadID)) || {};
-            const path = join(__dirname, "chache", "joinvid");
+            const path = join(__dirname, "cache", "joinGif");
             const pathGif = join(path, `${threadID}.gif`);
 
             var mentions = [], nameArray = [], memLength = [], i = 0;
@@ -96,11 +102,11 @@ AGR AP KO APNE GROUP MA ADMIN KA NAME KA BOT CHAHIE TO WHATSAPP PA CONTACT KR SA
 
             if (!existsSync(path)) mkdirSync(path, { recursive: true });
 
-            const randomPath = readdirSync(join(__dirname, "chache", "joinvid", "randomvid"));
+            const randomPath = readdirSync(join(__dirname, "cache", "joinGif", "randomgif"));
 
             if (existsSync(pathGif)) formPush = { body: msg, attachment: createReadStream(pathGif), mentions }
             else if (randomPath.length != 0) {
-                const pathRandom = join(__dirname, "chache", "joinvid", "randomvid", `${randomPath[Math.floor(Math.random() * randomPath.length)]}`);
+                const pathRandom = join(__dirname, "cache", "joinGif", "randomgif", `${randomPath[Math.floor(Math.random() * randomPath.length)]}`);
                 formPush = { body: msg, attachment: createReadStream(pathRandom), mentions }
             }
             else formPush = { body: msg, mentions }
