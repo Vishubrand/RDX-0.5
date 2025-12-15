@@ -1,77 +1,25 @@
 const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
-const { Jimp } = require("jimp");
 
 module.exports.config = {
   name: "pair",
-  version: "1.0.0",
+  version: "1.0.0", 
   hasPermssion: 0,
-  credits: "SARDAR RDX",
-  description: "Create a romantic pair edit with profile pics",
-  commandCategory: "Love",
-  usages: "[@mention optional]",
-  cooldowns: 5,
+  credits: "D-Jukie (Modified by RDX)",
+  description: "Pairing - Find your soulmate",
+  commandCategory: "Love", 
+  usages: "pair [@mention optional]", 
+  cooldowns: 0
 };
 
-const cacheDir = path.join(__dirname, "cache", "canvas");
-const templateUrl = "https://i.ibb.co/nMcPznDm/d57df01d663b.jpg";
-const templatePath = path.join(cacheDir, "pair_new_template.png");
+const cacheDir = path.join(__dirname, "cache");
 
 const maleNames = ["ali", "ahmed", "muhammad", "hassan", "hussain", "sardar", "rdx", "usman", "bilal", "hamza", "asad", "zain", "fahad", "faisal", "imran", "kamran", "adnan", "arslan", "waqas", "waseem", "irfan", "junaid", "khalid", "nadeem", "naveed", "omer", "qasim", "rizwan", "sajid", "salman", "shahid", "tariq", "umar", "yasir", "zahid"];
 const femaleNames = ["fatima", "ayesha", "maria", "sana", "hira", "zara", "maryam", "khadija", "sara", "amina", "bushra", "farah", "iqra", "javeria", "kinza", "laiba", "maham", "nadia", "rabia", "saima", "tahira", "uzma", "zainab", "anam", "asma", "dua", "esha", "fiza", "huma", "iram"];
 
-const romanticMessages = [
-  "𝐘𝐨𝐮 𝐚𝐫𝐞 𝐭𝐡𝐞 𝐫𝐞𝐚𝐬𝐨𝐧 𝐈 𝐬𝐦𝐢𝐥𝐞 💖",
-  "𝐈𝐧 𝐲𝐨𝐮𝐫 𝐞𝐲𝐞𝐬, 𝐈 𝐟𝐨𝐮𝐧𝐝 𝐡𝐨𝐦𝐞 🏡✨",
-  "𝐄𝐯𝐞𝐫𝐲 𝐥𝐨𝐯𝐞 𝐬𝐭𝐨𝐫𝐲 𝐢𝐬 𝐛𝐞𝐚𝐮𝐭𝐢𝐟𝐮𝐥, 𝐛𝐮𝐭 𝐨𝐮𝐫𝐬 𝐢𝐬 𝐦𝐲 𝐟𝐚𝐯𝐨𝐫𝐢𝐭𝐞 💕",
-  "𝐘𝐨𝐮 𝐚𝐫𝐞 𝐦𝐲 𝐭𝐨𝐝𝐚𝐲 𝐚𝐧𝐝 𝐚𝐥𝐥 𝐨𝐟 𝐦𝐲 𝐭𝐨𝐦𝐨𝐫𝐫𝐨𝐰𝐬 💝",
-  "𝐖𝐢𝐭𝐡 𝐲𝐨𝐮, 𝐈 𝐚𝐦 𝐡𝐨𝐦𝐞 🌹",
-  "𝐋𝐨𝐯𝐞 𝐢𝐬 𝐧𝐨𝐭 𝐣𝐮𝐬𝐭 𝐚 𝐟𝐞𝐞𝐥𝐢𝐧𝐠, 𝐢𝐭'𝐬 𝐲𝐨𝐮 💓",
-  "𝐓𝐨𝐠𝐞𝐭𝐡𝐞𝐫 𝐢𝐬 𝐦𝐲 𝐟𝐚𝐯𝐨𝐫𝐢𝐭𝐞 𝐩𝐥𝐚𝐜𝐞 𝐭𝐨 𝐛𝐞 💞",
-  "𝐘𝐨𝐮 𝐦𝐚𝐤𝐞 𝐦𝐲 𝐡𝐞𝐚𝐫𝐭 𝐬𝐦𝐢𝐥𝐞 ❤️",
-  "𝐈𝐧 𝐚 𝐬𝐞𝐚 𝐨𝐟 𝐩𝐞𝐨𝐩𝐥𝐞, 𝐦𝐲 𝐞𝐲𝐞𝐬 𝐰𝐢𝐥𝐥 𝐚𝐥𝐰𝐚𝐲𝐬 𝐬𝐞𝐚𝐫𝐜𝐡 𝐟𝐨𝐫 𝐲𝐨𝐮 👀💕",
-  "𝐘𝐨𝐮 𝐚𝐧𝐝 𝐦𝐞, 𝐟𝐨𝐫𝐞𝐯𝐞𝐫 𝐚𝐧𝐝 𝐚𝐥𝐰𝐚𝐲𝐬 🌟"
-];
-
-async function downloadTemplate() {
-  if (!fs.existsSync(cacheDir)) {
-    fs.mkdirSync(cacheDir, { recursive: true });
-  }
-  if (!fs.existsSync(templatePath)) {
-    const response = await axios.get(templateUrl, { responseType: "arraybuffer" });
-    fs.writeFileSync(templatePath, Buffer.from(response.data));
-  }
-}
-
-async function getAvatar(uid) {
-  const url = `https://graph.facebook.com/${uid}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
-  const response = await axios.get(url, { responseType: "arraybuffer" });
-  return Buffer.from(response.data);
-}
-
-async function makeCircularImage(buffer, size) {
-  const image = await Jimp.read(buffer);
-  image.resize({ w: size, h: size });
-
-  const mask = new Jimp({ width: size, height: size, color: 0x00000000 });
-  const center = size / 2;
-  const radius = size / 2;
-
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const dist = Math.sqrt((x - center) ** 2 + (y - center) ** 2);
-      if (dist <= radius) {
-        mask.setPixelColor(0xFFFFFFFF, x, y);
-      }
-    }
-  }
-
-  image.mask(mask, 0, 0);
-  return image;
-}
-
 function detectGender(name) {
+  if (!name) return "unknown";
   const lowerName = name.toLowerCase();
   if (femaleNames.some(n => lowerName.includes(n))) return "female";
   if (maleNames.some(n => lowerName.includes(n))) return "male";
@@ -105,22 +53,60 @@ function isValidName(name) {
 }
 
 async function getProperName(api, uid, Users) {
-  if (Users && Users.getNameUser) {
-    return await Users.getNameUser(uid);
+  try {
+    if (Users && Users.getNameUser) {
+      const name = await Users.getNameUser(uid);
+      if (isValidName(name)) return name;
+    }
+    const info = await getUserInfo(api, uid);
+    if (isValidName(info.name)) return info.name;
+    if (isValidName(info.firstName)) return info.firstName;
+    if (isValidName(info.alternateName)) return info.alternateName;
+    return 'Jaan';
+  } catch (e) {
+    return 'Jaan';
   }
-  const info = await getUserInfo(api, uid);
-  if (isValidName(info.name)) return info.name;
-  if (isValidName(info.firstName)) return info.firstName;
-  if (isValidName(info.alternateName)) return info.alternateName;
-  return 'Jaan';
 }
 
-module.exports.run = async ({ api, event, Users }) => {
+async function downloadImage(url, filePath) {
+  try {
+    const response = await axios.get(url, { 
+      responseType: "arraybuffer",
+      timeout: 10000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+    fs.writeFileSync(filePath, Buffer.from(response.data));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function cleanupFiles(...files) {
+  for (const file of files) {
+    try {
+      if (fs.existsSync(file)) {
+        fs.unlinkSync(file);
+      }
+    } catch (e) {}
+  }
+}
+
+module.exports.run = async function({ api, event, Users }) {
   const { threadID, messageID, senderID } = event;
-  const mention = Object.keys(event.mentions);
+  const mention = Object.keys(event.mentions || {});
+  
+  const timestamp = Date.now();
+  const avtPath = path.join(cacheDir, `avt_${timestamp}.png`);
+  const gifPath = path.join(cacheDir, `giflove_${timestamp}.gif`);
+  const avt2Path = path.join(cacheDir, `avt2_${timestamp}.png`);
 
   try {
-    await downloadTemplate();
+    if (!fs.existsSync(cacheDir)) {
+      fs.mkdirSync(cacheDir, { recursive: true });
+    }
 
     let one = senderID;
     let two;
@@ -131,22 +117,30 @@ module.exports.run = async ({ api, event, Users }) => {
       two = mention[0];
     } else {
       const members = await getThreadMembers(api, threadID);
-      const filteredMembers = members.filter(m => m !== senderID);
+      const botID = api.getCurrentUserID();
+      const filteredMembers = members.filter(m => m !== senderID && m !== botID);
 
       if (filteredMembers.length === 0) {
-        return api.sendMessage("≿━━━━༺❀༻━━━━≾\n❌ 𝐍𝐨 𝐦𝐞𝐦𝐛𝐞𝐫𝐬 𝐟𝐨𝐮𝐧𝐝 𝐭𝐨 𝐩𝐚𝐢𝐫!\n≿━━━━༺❀༻━━━━≾", threadID, messageID);
+        return api.sendMessage("┏━•❃°•°❀°•°❃•━┓\n\n❌ 𝐍𝐨 𝐦𝐞𝐦𝐛𝐞𝐫𝐬 𝐟𝐨𝐮𝐧𝐝 𝐭𝐨 𝐩𝐚𝐢𝐫!\n\n┗━•❃°•°❀°•°❃•━┛", threadID, messageID);
       }
 
       let oppositeGenderMembers = [];
-      for (const uid of filteredMembers) {
-        const info = await getUserInfo(api, uid);
-        const memberGender = info.gender === 1 ? "female" : info.gender === 2 ? "male" : detectGender(info.name || "");
-
-        if (senderGender === "male" && memberGender === "female") {
-          oppositeGenderMembers.push(uid);
-        } else if (senderGender === "female" && memberGender === "male") {
-          oppositeGenderMembers.push(uid);
-        } else if (senderGender === "unknown" || memberGender === "unknown") {
+      const checkLimit = Math.min(filteredMembers.length, 30);
+      
+      for (let i = 0; i < checkLimit; i++) {
+        const uid = filteredMembers[i];
+        try {
+          const info = await getUserInfo(api, uid);
+          const memberGender = info.gender === 1 ? "female" : info.gender === 2 ? "male" : detectGender(info.name || "");
+          
+          if (senderGender === "male" && memberGender === "female") {
+            oppositeGenderMembers.push(uid);
+          } else if (senderGender === "female" && memberGender === "male") {
+            oppositeGenderMembers.push(uid);
+          } else if (senderGender === "unknown" || memberGender === "unknown") {
+            oppositeGenderMembers.push(uid);
+          }
+        } catch (e) {
           oppositeGenderMembers.push(uid);
         }
       }
@@ -158,40 +152,75 @@ module.exports.run = async ({ api, event, Users }) => {
       two = oppositeGenderMembers[Math.floor(Math.random() * oppositeGenderMembers.length)];
     }
 
-    const avatarOne = await getAvatar(one);
-    const avatarTwo = await getAvatar(two);
+    var tle = Math.floor(Math.random() * 101);
+    var namee = await getProperName(api, senderID, Users);
+    var name = await getProperName(api, two, Users);
 
-    const circleOne = await makeCircularImage(avatarOne, 280);
-    const circleTwo = await makeCircularImage(avatarTwo, 280);
+    var arraytag = [];
+    arraytag.push({id: senderID, tag: namee});
+    arraytag.push({id: two, tag: name});
 
-    const template = await Jimp.read(templatePath);
+    const avatar1Url = `https://graph.facebook.com/${senderID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
+    const avatar2Url = `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
+    const gifUrl = `https://i.ibb.co/wC2JJBb/trai-tim-lap-lanh.gif`;
 
-    template.composite(circleOne, 63, 80);
-    template.composite(circleTwo, 525, 88);
+    await Promise.all([
+      downloadImage(avatar1Url, avtPath),
+      downloadImage(gifUrl, gifPath),
+      downloadImage(avatar2Url, avt2Path)
+    ]);
 
-    const outputPath = path.join(cacheDir, `pair_${one}_${two}_${Date.now()}.png`);
-    await template.write(outputPath);
+    var imglove = [];
+    if (fs.existsSync(avtPath)) imglove.push(fs.createReadStream(avtPath));
+    if (fs.existsSync(gifPath)) imglove.push(fs.createReadStream(gifPath));
+    if (fs.existsSync(avt2Path)) imglove.push(fs.createReadStream(avt2Path));
 
-    let nameOne = await getProperName(api, one, Users);
-    let nameTwo = await getProperName(api, two, Users);
-    const randomMsg = romanticMessages[Math.floor(Math.random() * romanticMessages.length)];
+    var msg = {
+      body: `┏━•❃°•°❀°•°❃•━┓
 
-    api.sendMessage(
-      {
-        body: `≿━━━━༺💝༻━━━━≾\n\n${randomMsg}\n\n👤 ${nameOne}\n💕 𝐏𝐀𝐈𝐑𝐄𝐃 𝐖𝐈𝐓𝐇 💕\n👤 ${nameTwo}\n\n≿━━━━༺💝༻━━━━≾`,
-        attachment: fs.createReadStream(outputPath),
-        mentions: [
-          { tag: nameOne, id: one },
-          { tag: nameTwo, id: two }
-        ]
-      },
-      threadID,
-      () => fs.unlinkSync(outputPath),
-      messageID
-    );
+𝐎𝐰𝐧𝐞𝐫 ·˚ ༘₊·꒰➳: ̗̀➛ 🍓 𝐒𝐀𝐑𝐃𝐀𝐑 𝐑𝐃𝐗
+
+┗━•❃°•°❀°•°❃•━┛ 
+
+✦ ━━━━ ༺♡༻ ━━━━ ✦
+
+[❝ 𝑇𝑢𝑗ℎ𝑘𝑜 𝑑𝑒𝑘ℎ 𝑘𝑒 𝑏𝑎𝑠 𝑒𝑘 𝑘ℎ𝑦𝑎𝑎𝑙 𝑎𝑎𝑡𝑎 ℎ𝑎𝑖,
+𝐷𝑖𝑙 𝑘𝑎ℎ𝑡𝑎 ℎ𝑎𝑖 𝑘𝑎𝑠ℎ 𝑡𝑢 𝑠𝑎𝑎𝑡ℎ ℎ𝑜... ❞]
+
+✦ ━━━━ ༺♡༻ ━━━━ ✦
+
+[❝ 𝐸𝑘 𝑊𝑎𝑞𝑡 𝑎𝑎𝑦𝑒 𝑍𝑖𝑛𝑑𝑎𝑔𝑖 𝑚𝑒𝑖𝑛...
+
+𝐽𝑎ℎ𝑎𝑎𝑛 𝑡𝑢 𝑣𝑖 𝑚𝑒𝑟𝑒 𝑝𝑦𝑎𝑟 𝑚𝑒𝑖𝑛 ℎ𝑜 ❞]
+
+✦ ━━━━ ༺♡༻ ━━━━ ✦
+
+┌──═━┈━═──┐
+
+➻ 𝐍𝗔ɱɘ ✦ ${namee}
+
+➻ 𝐍𝗔ɱɘ ✦ ${name}
+
+└──═━┈━═──┘
+
+✦ ━━━━ ༺♡༻ ━━━━ ✦
+
+🌸🍁𝐘𝐎𝐔𝐑 𝐋𝐎𝐕𝐄 𝐋𝐄𝐕𝐄𝐋💝 : ╰┈➤ ${tle}%
+
+${namee} 🌺 ${name}`,
+      mentions: arraytag,
+      attachment: imglove.length > 0 ? imglove : undefined
+    };
+
+    return api.sendMessage(msg, threadID, () => {
+      setTimeout(() => {
+        cleanupFiles(avtPath, gifPath, avt2Path);
+      }, 3000);
+    }, messageID);
 
   } catch (error) {
     console.error("Pair command error:", error);
-    api.sendMessage("≿━━━━༺❀༻━━━━≾\n❌ 𝐄𝐫𝐫𝐨𝐫 𝐜𝐫𝐞𝐚𝐭𝐢𝐧𝐠 𝐩𝐚𝐢𝐫!\n≿━━━━༺❀༻━━━━≾", threadID, messageID);
+    cleanupFiles(avtPath, gifPath, avt2Path);
+    return api.sendMessage("┏━•❃°•°❀°•°❃•━┓\n\n❌ 𝐄𝐫𝐫𝐨𝐫 𝐜𝐫𝐞𝐚𝐭𝐢𝐧𝐠 𝐩𝐚𝐢𝐫!\n\n┗━•❃°•°❀°•°❃•━┛", threadID, messageID);
   }
 };
