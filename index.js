@@ -25,7 +25,7 @@ function getConfig() {
     return fs.readJsonSync(configPath);
   } catch {
     return {
-      BOTNAME: 'SARDAR RDX',
+      BOTNAME: 'VIXHU RDX',
       PREFIX: '.',
       ADMINBOT: ['100009012838085'],
       TIMEZONE: 'Asia/Karachi',
