@@ -27,7 +27,7 @@ function getConfig() {
     return {
       BOTNAME: 'VIXHU RDX',
       PREFIX: '.',
-      ADMINBOT: ['100009012838085'],
+      ADMINBOT: ['61577768992288'],
       TIMEZONE: 'Asia/Karachi',
       PREFIX_ENABLED: true,
       REACT_DELETE_EMOJI: '😡',
